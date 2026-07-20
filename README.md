@@ -71,14 +71,14 @@ varreduras totalmente abertas), mas **não** isolam criptograficamente um códig
 
 ## Deploy no GitHub Pages
 
-1. Suba o repositório no GitHub com o nome **`Dashboard`** (o `base` do Vite está configurado como
-   `/Dashboard/` em [`vite.config.ts`](vite.config.ts) — se usar outro nome, ajuste lá).
+1. Suba o repositório no GitHub com o nome **`Nexo`** (o `base` do Vite está configurado como
+   `/Nexo/` em [`vite.config.ts`](vite.config.ts)).
 2. Em **Settings → Pages**, defina **Source = GitHub Actions**.
 3. Em **Settings → Secrets and variables → Actions**, adicione dois secrets:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
 4. Faça push na branch `main`. O workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-   builda e publica automaticamente. A URL será `https://SEU-USUARIO.github.io/Dashboard/`.
+   builda e publica automaticamente. A URL será `https://SEU-USUARIO.github.io/Nexo/`.
 
 ## Instalar como app (PWA)
 
