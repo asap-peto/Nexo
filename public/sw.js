@@ -1,7 +1,7 @@
 // Service worker mínimo: cache do app shell para abertura offline básica.
 // Sem push, sem estratégias complexas — os dados vêm do Supabase/localStorage em runtime.
-const CACHE = 'habitos-shell-v1'
-const BASE = '/Dashboard/'
+const CACHE = 'nexo-shell-v2'
+const BASE = '/Nexo/'
 const ASSETS = [BASE, BASE + 'index.html', BASE + 'manifest.webmanifest', BASE + 'icon.svg']
 
 self.addEventListener('install', (event) => {
