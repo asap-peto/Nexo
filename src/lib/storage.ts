@@ -8,7 +8,7 @@ import { supabase, hasSupabase } from './supabase'
  */
 
 const ENTRY_COLS =
-  'entry_date, sleep_hours, screen_off_before_bed, read_before_bed, feels_rested, study_hours, did_all_ankis, ate_as_planned, notes'
+  'entry_date, sleep_hours, screen_off_before_bed, read_before_bed, sleep_quality, study_hours, study_focus, did_all_ankis, ate_as_planned, notes'
 const WORKOUT_COLS = 'id, entry_date, style, minutes, calories'
 const RECIPE_COLS = 'id, title, time_min, meal_type, ingredients, steps'
 

@@ -1,5 +1,37 @@
 import styles from './Toggles.module.css'
 
+/** Nota subjetiva 1-5. `value` pode ser null (ainda não respondido). */
+export function RatingInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: number | null
+  onChange: (v: number) => void
+}) {
+  return (
+    <div className={styles.ratingWrap}>
+      <span className={styles.label}>{label}</span>
+      <div className={styles.ratingRow} role="radiogroup" aria-label={label}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            className={`${styles.ratingBtn} ${value === n ? styles.ratingBtnActive : ''}`}
+            onClick={() => onChange(n)}
+            role="radio"
+            aria-checked={value === n}
+            aria-label={`${n} de 5`}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /** Toggle sim/não simples. `value` pode ser null (ainda não respondido). */
 export function YesNoToggle({
   label,

@@ -1,6 +1,6 @@
 import type { Entry, Workout } from '../types'
 import { today, addDays } from './dates'
-import { formatHM, hoursToMinutes } from './format'
+import { hoursToMinutes } from './format'
 
 /**
  * Regras de "foco cumprido", estatísticas e insights de relação. Centralizado
@@ -11,10 +11,14 @@ import { formatHM, hoursToMinutes } from './format'
 // Limiares de referência (ajustáveis)
 export const SLEEP_GOAL_MINUTES = 7 * 60 + 30
 export const SLEEP_GOAL_HOURS = SLEEP_GOAL_MINUTES / 60
+// Piso mínimo para o estudo "contar" como foco (evita que 5min feche o foco).
+export const STUDY_GOAL_MINUTES = 60
+export const STUDY_GOAL_HOURS = STUDY_GOAL_MINUTES / 60
 export const STREAK_MIN_FOCUS = 2 // quantos dos 3 focos p/ o dia "contar" no streak
 const MIN_COMPARABLE_DAYS = 4
 const MIN_SINGLE_RATE_DAYS = 5
-const MIN_STUDY_DIFF_MINUTES = 15
+const MIN_RATING_DIFF = 0.5 // pontos, numa escala de 1-5
+const RATING_HIGH_THRESHOLD = 4 // nota >= 4 conta como "boa" ao comparar grupos
 
 export interface FocusBreakdown {
   sleep: boolean
@@ -27,7 +31,7 @@ export function focusFor(e: Entry | undefined): FocusBreakdown {
   const sleepMinutes = hoursToMinutes(e?.sleep_hours)
   const studyMinutes = hoursToMinutes(e?.study_hours)
   const sleep = sleepMinutes != null && sleepMinutes >= SLEEP_GOAL_MINUTES
-  const study = studyMinutes != null && studyMinutes > 0
+  const study = studyMinutes != null && studyMinutes >= STUDY_GOAL_MINUTES
   const food = e != null && e.ate_as_planned === true
   return { sleep, study, food, count: Number(sleep) + Number(study) + Number(food) }
 }
@@ -41,6 +45,7 @@ function indexByDate(entries: Entry[]): Map<string, Entry> {
 export interface Stats {
   currentStreak: number
   bestStreak: number
+  focusDays7: number // dias na meta (≥2 focos) nos últimos 7
   avgSleep7: number | null
   avgStudy7: number | null
   workoutMin7: number
@@ -89,6 +94,13 @@ export function computeStats(entries: Entry[], workouts: Workout[]): Stats {
   const avgSleep7 = average(recent.map((e) => e.sleep_hours))
   const avgStudy7 = average(recent.map((e) => e.study_hours))
 
+  // Taxa "X/7": quantos dos últimos 7 dias bateram a meta de focos.
+  // Métrica mais justa que o streak (um dia perdido não zera tudo).
+  let focusDays7 = 0
+  for (const d of last7) {
+    if (focusFor(byDate.get(d)).count >= STREAK_MIN_FOCUS) focusDays7++
+  }
+
   const recentW = workouts.filter((w) => last7.has(w.entry_date))
   const workoutMin7 = sum(recentW.map((w) => w.minutes))
   const workoutCal7 = sum(recentW.map((w) => w.calories))
@@ -97,6 +109,7 @@ export function computeStats(entries: Entry[], workouts: Workout[]): Stats {
   return {
     currentStreak,
     bestStreak,
+    focusDays7,
     avgSleep7,
     avgStudy7,
     workoutMin7,
@@ -112,58 +125,122 @@ export interface Insight {
   text: string
 }
 
-/** Frases curtas que só aparecem quando há dados suficientes para significarem algo. */
-export function computeInsights(entries: Entry[]): Insight[] {
+/**
+ * Frases curtas que só aparecem quando há dados suficientes. A prioridade é
+ * relacionar AÇÃO que o usuário controla (tela-off, leitura, treino) com um
+ * RESULTADO SENTIDO por ele — nota de sono, nota de foco no estudo. De
+ * propósito NÃO usamos duração (horas de sono/estudo) como desfecho: duração
+ * é facilmente confundida por fatores externos do dia (agenda, imprevistos),
+ * então atribuir a variação dela ao sono/treino seria enganoso. Notas
+ * subjetivas de qualidade sofrem muito menos desse viés.
+ * São ordenadas por valor e limitadas a 4 para o card não virar parede.
+ */
+export function computeInsights(entries: Entry[], workouts: Workout[]): Insight[] {
   const out: Insight[] = []
+  const trainedDates = new Set(workouts.map((w) => w.entry_date))
 
-  // Sono → estudo
-  const sleepStudyDays = entries.filter(hasSleepAndStudy)
-  const wellSleptStudy = sleepStudyDays.filter((e) => sleepGoalMet(e))
-  const poorSleptStudy = sleepStudyDays.filter((e) => !sleepGoalMet(e))
-  if (wellSleptStudy.length >= MIN_COMPARABLE_DAYS && poorSleptStudy.length >= MIN_COMPARABLE_DAYS) {
-    const wellStudyAvg = averageMinutes(wellSleptStudy.map((e) => e.study_hours))
-    const poorStudyAvg = averageMinutes(poorSleptStudy.map((e) => e.study_hours))
-    if (wellStudyAvg != null && poorStudyAvg != null) {
-      const diffMinutes = Math.round(wellStudyAvg - poorStudyAvg)
-      if (Math.abs(diffMinutes) >= MIN_STUDY_DIFF_MINUTES) {
-        const sampleSize = wellSleptStudy.length + poorSleptStudy.length
-        out.push({
-          icon: '📚',
-          text:
-            diffMinutes > 0
-              ? `Você estuda ${formatHM(diffMinutes / 60)} a mais, em média, nos dias com ≥ 7h30 de sono (${sampleSize} dias comparáveis).`
-              : `Você estuda ${formatHM(-diffMinutes / 60)} a menos, em média, nos dias com ≥ 7h30 de sono (${sampleSize} dias comparáveis).`,
-        })
-      }
-    }
-  }
+  // 1) Tela desligada 30min antes → nota de sono (alavanca → resultado).
+  const screenSleep = avgRatingByFlag(entries, (e) => e.sleep_quality, (e) => e.screen_off_before_bed)
+  pushRatingDiff(
+    out,
+    screenSleep,
+    '📵',
+    (on, off, n) =>
+      `Sua nota de sono é ${on} nas noites em que desliga a tela 30min antes, contra ${off} nas outras (${n} noites comparáveis).`,
+  )
 
-  // Sono → sensação de descanso
-  const sleepRestDays = entries.filter(hasSleepAndRested)
-  const wellSleptRest = sleepRestDays.filter((e) => sleepGoalMet(e))
-  const poorSleptRest = sleepRestDays.filter((e) => !sleepGoalMet(e))
-  const restedWell = rate(wellSleptRest.map((e) => e.feels_rested))
-  const restedPoor = rate(poorSleptRest.map((e) => e.feels_rested))
-  if (restedWell != null && wellSleptRest.length >= MIN_SINGLE_RATE_DAYS) {
-    const hasComparison = restedPoor != null && poorSleptRest.length >= MIN_COMPARABLE_DAYS
-    const sampleSize = wellSleptRest.length + (hasComparison ? poorSleptRest.length : 0)
-    out.push({
-      icon: '😴',
-      text:
-        hasComparison
-          ? `Você se sente descansado em ${pct(restedWell)} dos dias com ≥ 7h30, contra ${pct(restedPoor!)} quando dorme menos (${sampleSize} dias comparáveis).`
-          : `Você se sente descansado em ${pct(restedWell)} dos dias com ≥ 7h30 de sono (${sampleSize} dias registrados).`,
-    })
-  }
+  // 2) Boa noite de sono → nota de foco no estudo (o resultado que importa:
+  //    não é "estudar mais horas", é estudar melhor no tempo que você tem).
+  const sleepStudyFocus = avgRatingByFlag(entries, (e) => e.study_focus, (e) => ratingHigh(e.sleep_quality))
+  pushRatingDiff(
+    out,
+    sleepStudyFocus,
+    '📚',
+    (on, off, n) =>
+      `Sua nota de foco no estudo é ${on} nos dias com nota de sono alta, contra ${off} nos outros (${n} dias comparáveis).`,
+  )
 
-  // Ankis
+  // 3) Treino → nota de foco no estudo no mesmo dia.
+  const trainStudyFocus = avgRatingByFlag(entries, (e) => e.study_focus, (e) => trainedDates.has(e.entry_date))
+  pushRatingDiff(
+    out,
+    trainStudyFocus,
+    '⚡',
+    (on, off, n) =>
+      `Sua nota de foco no estudo é ${on} nos dias em que treina, contra ${off} nos que não treina (${n} dias comparáveis).`,
+  )
+
+  // 4) Treino → nota de sono da noite seguinte (treino no dia D afeta a noite D→D+1).
+  const trainSleepQuality = avgRatingByFlag(entries, (e) => e.sleep_quality, (e) =>
+    trainedDates.has(addDays(e.entry_date, -1)),
+  )
+  pushRatingDiff(
+    out,
+    trainSleepQuality,
+    '🏋️',
+    (on, off, n) =>
+      `Sua nota de sono é ${on} nas noites depois de treinar, contra ${off} nas outras (${n} noites comparáveis).`,
+  )
+
+  // 5) Leu antes de dormir → nota de sono (ação → resultado).
+  const readSleep = avgRatingByFlag(entries, (e) => e.sleep_quality, (e) => e.read_before_bed)
+  pushRatingDiff(
+    out,
+    readSleep,
+    '📖',
+    (on, off, n) => `Sua nota de sono é ${on} nas noites em que lê antes de dormir, contra ${off} nas outras (${n} noites comparáveis).`,
+  )
+
+  // 6) Ankis — só uma taxa (prioridade baixa; sai quando há relações mais ricas).
   const ankiDays = entries.filter((e) => e.did_all_ankis != null)
   const ankiRate = rate(ankiDays.map((e) => e.did_all_ankis))
   if (ankiRate != null && ankiDays.length >= MIN_SINGLE_RATE_DAYS) {
     out.push({ icon: '🃏', text: `Ankis em dia em ${pct(ankiRate)} dos ${ankiDays.length} dias registrados.` })
   }
 
-  return out
+  return out.slice(0, 4)
+}
+
+interface RatingDiff {
+  onAvg: number
+  offAvg: number
+  n: number
+}
+
+/** Nota alta (>= 4) conta como "boa" ao dividir os dias em dois grupos. */
+function ratingHigh(v: number | null): boolean | null {
+  return isValidRating(v) ? v >= RATING_HIGH_THRESHOLD : null
+}
+
+/** Média de uma nota 1-5 separada por uma flag booleana. */
+function avgRatingByFlag(
+  entries: Entry[],
+  pick: (e: Entry) => number | null,
+  flag: (e: Entry) => boolean | null,
+): RatingDiff | null {
+  const base = entries.filter((e) => isValidRating(pick(e)) && flag(e) != null)
+  const on = base.filter((e) => flag(e) === true)
+  const off = base.filter((e) => flag(e) === false)
+  if (on.length < MIN_COMPARABLE_DAYS || off.length < MIN_COMPARABLE_DAYS) return null
+  const onAvg = averageRating(on.map(pick))
+  const offAvg = averageRating(off.map(pick))
+  if (onAvg == null || offAvg == null) return null
+  return { onAvg, offAvg, n: on.length + off.length }
+}
+
+function pushRatingDiff(
+  out: Insight[],
+  cmp: RatingDiff | null,
+  icon: string,
+  text: (on: string, off: string, n: number) => string,
+): void {
+  if (!cmp) return
+  if (Math.abs(cmp.onAvg - cmp.offAvg) < MIN_RATING_DIFF) return
+  out.push({ icon, text: text(fmtRating(cmp.onAvg), fmtRating(cmp.offAvg), cmp.n) })
+}
+
+function fmtRating(n: number): string {
+  return n.toFixed(1).replace('.', ',')
 }
 
 // ---- helpers ---------------------------------------------------------------
@@ -174,28 +251,14 @@ function average(vals: (number | null)[]): number | null {
   return nums.reduce((a, b) => a + b, 0) / nums.length
 }
 
-function averageMinutes(vals: (number | null)[]): number | null {
-  const minutes = vals.map(hoursToMinutes).filter((v): v is number => v != null)
-  if (minutes.length === 0) return null
-  return minutes.reduce((a, b) => a + b, 0) / minutes.length
+function isValidRating(v: number | null): v is number {
+  return v != null && Number.isFinite(v) && v >= 1 && v <= 5
 }
 
-function validDuration(hours: number | null): boolean {
-  const minutes = hoursToMinutes(hours)
-  return minutes != null && minutes <= 24 * 60
-}
-
-function hasSleepAndStudy(e: Entry): boolean {
-  return validDuration(e.sleep_hours) && validDuration(e.study_hours)
-}
-
-function hasSleepAndRested(e: Entry): boolean {
-  return validDuration(e.sleep_hours) && e.feels_rested != null
-}
-
-function sleepGoalMet(e: Entry): boolean {
-  const minutes = hoursToMinutes(e.sleep_hours)
-  return minutes != null && minutes >= SLEEP_GOAL_MINUTES
+function averageRating(vals: (number | null)[]): number | null {
+  const nums = vals.filter(isValidRating)
+  if (nums.length === 0) return null
+  return nums.reduce((a, b) => a + b, 0) / nums.length
 }
 
 function sum(vals: (number | null)[]): number {

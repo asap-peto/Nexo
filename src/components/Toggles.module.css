@@ -84,3 +84,36 @@
   font-size: 0.74rem;
   opacity: 0.8;
 }
+
+/* Rating (nota 1-5) */
+.ratingWrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.ratingRow {
+  display: inline-flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ratingBtn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 50%;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ratingBtnActive {
+  background: var(--grad-primary);
+  border-color: transparent;
+  color: var(--action-text);
+}

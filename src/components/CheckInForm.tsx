@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import type { Entry } from '../types'
-import { YesNoToggle } from './Toggles'
+import { YesNoToggle, RatingInput } from './Toggles'
 import styles from './CheckInForm.module.css'
 
 type SectionKey = 'sleep' | 'study' | 'food' | 'notes'
 
 const SECTION_FIELDS: Record<SectionKey, (keyof Entry)[]> = {
-  sleep: ['sleep_hours', 'screen_off_before_bed', 'read_before_bed', 'feels_rested'],
-  study: ['study_hours', 'did_all_ankis'],
+  sleep: ['sleep_hours', 'screen_off_before_bed', 'read_before_bed', 'sleep_quality'],
+  study: ['study_hours', 'study_focus', 'did_all_ankis'],
   food: ['ate_as_planned'],
   notes: ['notes'],
 }
@@ -31,8 +31,9 @@ const EMPTY: Entry = {
   sleep_hours: null,
   screen_off_before_bed: null,
   read_before_bed: null,
-  feels_rested: null,
+  sleep_quality: null,
   study_hours: null,
+  study_focus: null,
   did_all_ankis: null,
   ate_as_planned: null,
   notes: null,
@@ -106,10 +107,10 @@ export function CheckInForm({
           value={form.read_before_bed}
           onChange={(v) => patch('sleep', { read_before_bed: v })}
         />
-        <YesNoToggle
-          label="Se sente descansado?"
-          value={form.feels_rested}
-          onChange={(v) => patch('sleep', { feels_rested: v })}
+        <RatingInput
+          label="Nota do sono"
+          value={form.sleep_quality}
+          onChange={(v) => patch('sleep', { sleep_quality: v })}
         />
         <button className={`nb-btn ${styles.sectionSave}`} onClick={() => saveSection('sleep')} disabled={saving != null}>
           {saveLabel('sleep')}
@@ -126,6 +127,11 @@ export function CheckInForm({
           label="Tempo estudado"
           value={form.study_hours}
           onChange={(value) => patch('study', { study_hours: value })}
+        />
+        <RatingInput
+          label="Nota de foco no estudo"
+          value={form.study_focus}
+          onChange={(v) => patch('study', { study_focus: v })}
         />
         <YesNoToggle
           label="Fiz todos os Ankis do dia?"
