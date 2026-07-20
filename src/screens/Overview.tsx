@@ -65,9 +65,9 @@ export function Overview({
         </MetricCard>
         <MetricCard
           label="Foco"
-          value={`${stats.currentStreak}`}
-          unit={stats.currentStreak === 1 ? 'dia de streak' : 'dias de streak'}
-          sub={`Melhor: ${stats.bestStreak} · Hoje ${todayFocus.count}/3`}
+          value={`${stats.focusDays7}/7`}
+          unit="dias na meta"
+          sub={`Streak ${stats.currentStreak} · melhor ${stats.bestStreak}`}
           grad="foco"
           decor="wave"
         >
@@ -168,8 +168,9 @@ export function Overview({
               <DetailRow icon="🌙" label="Sono" value={formatHM(selEntry?.sleep_hours)} />
               <DetailRow icon="🖥️" label="Tela off 30min antes" value={boolTxt(selEntry?.screen_off_before_bed)} />
               <DetailRow icon="📖" label="Leu antes de dormir" value={boolTxt(selEntry?.read_before_bed)} />
-              <DetailRow icon="😴" label="Descansado" value={boolTxt(selEntry?.feels_rested)} />
+              <DetailRow icon="😴" label="Nota do sono" value={ratingTxt(selEntry?.sleep_quality)} />
               <DetailRow icon="📚" label="Estudo" value={formatHM(selEntry?.study_hours)} />
+              <DetailRow icon="🎯" label="Nota de foco" value={ratingTxt(selEntry?.study_focus)} />
               <DetailRow icon="🃏" label="Ankis do dia" value={boolTxt(selEntry?.did_all_ankis)} />
               <DetailRow icon="🍽️" label="Alimentação" value={boolTxt(selEntry?.ate_as_planned)} />
               {selWorkouts.map((w) => (
@@ -195,6 +196,10 @@ export function Overview({
 
 function boolTxt(v: boolean | null | undefined): string {
   return v == null ? '—' : v ? 'Sim' : 'Não'
+}
+
+function ratingTxt(v: number | null | undefined): string {
+  return v == null ? '—' : `${v}/5`
 }
 
 function DetailRow({ icon, label, value }: { icon: string; label: string; value: string }) {

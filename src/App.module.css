@@ -2,9 +2,10 @@
   display: flex;
   gap: 22px;
   align-items: flex-start;
-  max-width: 1720px;
-  margin: 0 auto;
+  /* Sem max-width: preenche a tela inteira em qualquer monitor. */
+  width: 100%;
   padding: 18px;
+  box-sizing: border-box;
   /* Sem bg própria: usa a cor da página (body) por baixo, senão a diferença
      sutil entre --bg e --bg-2 vira uma "moldura" visível em telas largas. */
   min-height: 100dvh;

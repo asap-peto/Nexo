@@ -11,8 +11,9 @@ create table if not exists entries (
   sleep_hours numeric,
   screen_off_before_bed boolean,
   read_before_bed boolean,
-  feels_rested boolean,
+  sleep_quality smallint check (sleep_quality between 1 and 5),  -- nota subjetiva do sono
   study_hours numeric,
+  study_focus smallint check (study_focus between 1 and 5),     -- nota subjetiva de foco no estudo
   did_all_ankis boolean,
   ate_as_planned boolean,
   notes text,
@@ -85,8 +86,12 @@ end $$;
 
 -- ----------------------------------------------------------------------------
 -- MIGRAÇÃO (rode apenas se você já tinha a versão antiga da tabela `entries`):
---   alter table entries add column if not exists feels_rested boolean;
 --   alter table entries add column if not exists did_all_ankis boolean;
+--   alter table entries add column if not exists sleep_quality smallint check (sleep_quality between 1 and 5);
+--   alter table entries add column if not exists study_focus smallint check (study_focus between 1 and 5);
+--   -- "feels_rested" (sim/não) foi substituído pela nota de sono 1-5 acima.
+--   -- Se você já tinha essa coluna, pode removê-la (os dados antigos se perdem):
+--   -- alter table entries drop column if exists feels_rested;
 --   -- a antiga coluna study_method pode ser mantida (ignorada) ou removida:
 --   -- alter table entries drop column if exists study_method;
 -- E crie as tabelas `workouts` e `custom_recipes` acima (os create ... if not exists cuidam disso).

@@ -28,6 +28,7 @@ import styles from './App.module.css'
 const EMPTY_STATS: Stats = {
   currentStreak: 0,
   bestStreak: 0,
+  focusDays7: 0,
   avgSleep7: null,
   avgStudy7: null,
   workoutMin7: 0,
@@ -194,7 +195,7 @@ export default function App() {
 
   const todayEntry = entries.find((e) => e.entry_date === today()) ?? null
   const todayWorkouts = workouts.filter((w) => w.entry_date === today())
-  const insights = computeInsights(entries)
+  const insights = computeInsights(entries, workouts)
   const showRight = view === 'dashboard'
 
   const subtitle = sentenceCase(
