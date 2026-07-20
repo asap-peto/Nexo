@@ -1,0 +1,88 @@
+.card {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--radius);
+  padding: 15px 16px;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  color: #171716;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+.sono {
+  --metric-color: var(--sono);
+  background: #f1d663;
+}
+.estudo {
+  --metric-color: var(--estudo);
+  background: #efabd1;
+}
+.treino {
+  --metric-color: var(--treino);
+  background: #abc3e4;
+}
+.foco {
+  --metric-color: var(--food);
+  background: #a6b96e;
+}
+
+.decor {
+  position: absolute;
+  top: -18px;
+  right: -10px;
+  width: 100px;
+  height: 100px;
+  z-index: -1;
+  opacity: 0.72;
+  transform: rotate(8deg);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(23, 23, 22, 0.68);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: 2.05rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.unit {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: rgba(23, 23, 22, 0.66);
+}
+
+.sub {
+  font-size: 0.74rem;
+  color: rgba(23, 23, 22, 0.58);
+  margin-top: 3px;
+}
+
+.chart {
+  margin-top: auto;
+  padding-top: 10px;
+}

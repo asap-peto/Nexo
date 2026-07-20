@@ -1,0 +1,43 @@
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+.line {
+  fill: none;
+  stroke: url(#ecgGrad);
+  stroke: var(--sono);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: none;
+}
+
+.dot {
+  fill: var(--sono);
+}
+
+.dotFull {
+  fill: var(--surface);
+  stroke: var(--violet);
+  stroke-width: 3;
+}
+
+.dotEmpty {
+  fill: var(--faint);
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--faint);
+  margin-top: 4px;
+}

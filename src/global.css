@@ -1,0 +1,262 @@
+:root {
+  --bg: #eee8d9;
+  --bg-2: #f7f1e5;
+  --surface: #fbf7ed;
+  --surface-2: #f1ebdf;
+  --surface-glass: rgba(22, 21, 18, 0.045);
+  --border: rgba(22, 21, 18, 0.11);
+  --border-strong: rgba(22, 21, 18, 0.24);
+
+  --text: #171716;
+  --muted: #656158;
+  --faint: #969084;
+
+  /* Acentos */
+  --indigo: #7d91bc;
+  --violet: #de8ebf;
+  --purple: #b374a0;
+  --blue: #7695c5;
+  --cyan: #5c96a6;
+  --fuchsia: #d47eae;
+  --pink: #eba8ce;
+
+  /* Semânticos por foco/métrica */
+  --sono: #e7c74e;
+  --estudo: #e69bc6;
+  --treino: #8eaed8;
+  --food: #94a85d;
+  --danger: #b84755;
+
+  /* Aliases usados por componentes de gráfico */
+  --sleep: var(--sono);
+  --study: var(--estudo);
+
+  /* Paleta categórica (estilos de treino, séries de gráfico) */
+  --c-blue: #7f9bc7;
+  --c-sky: #70aebc;
+  --c-amber: #d9b43d;
+  --c-green: #839b50;
+  --c-pink: #d984b2;
+  --c-purple: #9d78a8;
+
+  /* Gradientes reutilizáveis */
+  --grad-primary: linear-gradient(var(--action-bg), var(--action-bg));
+  --grad-sono: linear-gradient(#f1d663, #f1d663);
+  --grad-estudo: linear-gradient(#efabd1, #efabd1);
+  --grad-treino: linear-gradient(#abc3e4, #abc3e4);
+  --grad-foco: linear-gradient(#a6b96e, #a6b96e);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --gap: 14px;
+  --glow: none;
+  --shadow: 0 8px 22px -20px rgba(22, 21, 18, 0.45);
+  --action-bg: #171716;
+  --action-text: #ffffff;
+  --sidebar-bg: #151514;
+  --sidebar-text: #ffffff;
+  --sidebar-muted: #aaa69d;
+  --sidebar-faint: #77746e;
+  --sidebar-hover: rgba(255, 255, 255, 0.055);
+  --insight-bg: #f7e5a9;
+  --selection-bg: #f7d8e9;
+  --success-soft: #e4e9cf;
+  --chart-grid: rgba(23, 23, 22, 0.12);
+  --scroll-thumb: rgba(22, 21, 18, 0.18);
+
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Manrope', var(--font-body);
+  --font: var(--font-body);
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e0e0d;
+  --bg-2: #171715;
+  --surface: #1f1f1c;
+  --surface-2: #2a2924;
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --text: #f7f1e6;
+  --muted: #b8b1a4;
+  --faint: #7e796f;
+  --action-bg: #f7f1e6;
+  --action-text: #171716;
+  --sidebar-bg: #f7f1e6;
+  --sidebar-text: #171716;
+  --sidebar-muted: #656158;
+  --sidebar-faint: #969084;
+  --sidebar-hover: rgba(23, 23, 22, 0.065);
+  --insight-bg: #2d2819;
+  --selection-bg: #3a2631;
+  --success-soft: #28301d;
+  --chart-grid: rgba(255, 255, 255, 0.12);
+  --scroll-thumb: rgba(255, 255, 255, 0.18);
+  --grad-primary: linear-gradient(#f7f1e6, #f7f1e6);
+  --shadow: 0 10px 26px -20px rgba(0, 0, 0, 0.85);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  font-weight: 400;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  min-height: 100dvh;
+  background-color: var(--bg);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 999px;
+}
+
+/* ---- Cartão base --------------------------------------------------------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.card + .card {
+  margin-top: var(--gap);
+}
+
+.card-title {
+  margin: 0 0 10px;
+  font-size: 0.76rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.section-hint {
+  font-size: 0.82rem;
+  color: var(--faint);
+  margin: 0 0 14px;
+  line-height: 1.45;
+}
+
+/* ---- Inputs -------------------------------------------------------------- */
+.number-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.number-input:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(222, 142, 191, 0.24);
+}
+
+.field-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+textarea.notes {
+  width: 100%;
+  min-height: 64px;
+  resize: vertical;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  outline: none;
+}
+
+textarea.notes:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(222, 142, 191, 0.2);
+}
+
+/* ---- Botão gradiente reutilizável ---------------------------------------- */
+.nb-btn {
+  border: none;
+  background: var(--grad-primary);
+  color: var(--action-text);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--glow);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.nb-btn:hover {
+  filter: brightness(1.06);
+}
+
+.nb-btn:active {
+  transform: translateY(1px);
+}
+
+.nb-btn:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  filter: none;
+}
+
+.nb-btn--ghost {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}

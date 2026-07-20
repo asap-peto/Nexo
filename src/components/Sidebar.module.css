@@ -1,0 +1,350 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 214px;
+  flex-shrink: 0;
+  padding: 18px 14px;
+  background: var(--sidebar-bg);
+  border-right: none;
+  border-radius: var(--radius);
+  position: sticky;
+  top: 16px;
+  height: calc(100dvh - 32px);
+  transition: width 0.18s ease, padding 0.18s ease, background-color 0.2s ease;
+}
+
+.collapseBtn {
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border: none;
+  border-radius: 50%;
+  background: #efa7d0;
+  color: #171716;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.collapseBtn:hover {
+  background: #f4bddb;
+  color: #171716;
+}
+
+.collapseIcon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.18s ease;
+}
+
+.sidebarCollapsed {
+  width: 66px;
+  padding: 18px 10px;
+  align-items: center;
+}
+
+.sidebarCollapsed .collapseIcon {
+  transform: rotate(180deg);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 8px 22px;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.sidebarCollapsed .brand {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0 20px;
+  justify-content: center;
+}
+
+.sidebarCollapsed .collapseBtn {
+  margin-left: 0;
+}
+
+/* Estado aberto: wordmark (logo horizontal). Estado recolhido: mark (quadrado). */
+.brandMark {
+  display: none;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.brandWordmark {
+  height: 22px;
+  width: auto;
+  max-width: 118px;
+  object-fit: contain;
+  /* O wordmark é quase preto; a sidebar (tema claro) é escura → inverte p/ branco. */
+  filter: invert(1) brightness(1.9);
+}
+
+:global(:root[data-theme='dark']) .brandWordmark {
+  filter: none;
+}
+
+.localTag {
+  font-size: 0.58rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: rgba(239, 167, 208, 0.14);
+  border: 1px solid rgba(239, 167, 208, 0.3);
+  color: #efa7d0;
+  padding: 2px 7px;
+  border-radius: 4px;
+  align-self: center;
+}
+
+.groupLabel {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sidebar-faint);
+  padding: 6px 12px;
+}
+
+.sidebarCollapsed .brandWordmark,
+.sidebarCollapsed .localTag,
+.sidebarCollapsed .groupLabel,
+.sidebarCollapsed .label {
+  display: none;
+}
+
+.sidebarCollapsed .brandMark {
+  display: block;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--sidebar-muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebarCollapsed .item {
+  justify-content: center;
+  padding: 12px;
+}
+
+.item:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+
+.itemActive {
+  background: transparent;
+  color: var(--sidebar-text);
+  box-shadow: inset 2px 0 0 #efa7d0;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.logout {
+  color: var(--sidebar-faint);
+  margin-top: 0;
+}
+
+.logout:hover {
+  color: var(--danger);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  align-self: stretch;
+}
+
+.themeToggle {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--sidebar-muted);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.themeToggle:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+
+.themeToggle:focus-visible,
+.collapseBtn:focus-visible,
+.item:focus-visible {
+  outline: 2px solid #efa7d0;
+  outline-offset: 2px;
+}
+
+.themeLabel {
+  white-space: nowrap;
+}
+
+.switchTrack {
+  width: 30px;
+  height: 17px;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sidebar-text) 16%, transparent);
+  transition: background 0.18s ease;
+}
+
+.switchThumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--sidebar-muted);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.switchOn {
+  background: #171716;
+}
+
+.switchOn .switchThumb {
+  background: #efa7d0;
+  transform: translateX(13px);
+}
+
+.sidebarCollapsed .footer {
+  align-items: center;
+}
+
+.sidebarCollapsed .themeToggle {
+  width: 44px;
+  justify-content: center;
+  padding: 12px;
+}
+
+.sidebarCollapsed .themeLabel,
+.sidebarCollapsed .switchTrack {
+  display: none;
+}
+
+/* ---- Mobile: pill flutuante, só ícones ------------------------------------ */
+@media (max-width: 720px) {
+  .sidebar,
+  .sidebarCollapsed {
+    position: fixed;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    left: 16px;
+    right: 16px;
+    top: auto;
+    width: auto;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    padding: 7px;
+    z-index: 50;
+    gap: 0;
+    box-shadow: 0 16px 34px -12px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Some tudo que não é a navegação: marca, botão de colapso, rodapé (tema/sair) */
+  .collapseBtn,
+  .brand,
+  .groupLabel,
+  .footer {
+    display: none;
+  }
+
+  .nav {
+    flex: 1;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .nav .item,
+  .sidebarCollapsed .nav .item {
+    flex: 1;
+    width: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 11px 0;
+    border-radius: 999px;
+  }
+
+  .item .label {
+    display: none;
+  }
+
+  .item .icon,
+  .item .icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .itemActive,
+  .sidebarCollapsed .itemActive {
+    box-shadow: none;
+    background: #efa7d0;
+    color: #171716;
+  }
+
+  .item:hover {
+    background: var(--sidebar-hover);
+  }
+
+  .itemActive:hover {
+    background: #efa7d0;
+  }
+}

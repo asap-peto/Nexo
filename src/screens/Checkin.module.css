@@ -1,0 +1,13 @@
+.entrySection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intro {
+  padding: 2px 2px 0;
+}
+
+.workoutCard {
+  margin-top: var(--gap);
+}

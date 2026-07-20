@@ -1,0 +1,250 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Calendário/timeline embutido logo após os focos (mobile/tablet).
+   No desktop a coluna da direita assume, então some. */
+.inlinePanel {
+  display: block;
+}
+
+@media (min-width: 1080px) {
+  .inlinePanel {
+    display: none;
+  }
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 1240px) {
+  .metrics {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .metrics > :nth-child(1) {
+    grid-column: span 2;
+  }
+
+  .metrics > :nth-child(2) {
+    grid-column: span 4;
+  }
+
+  .metrics > :nth-child(3),
+  .metrics > :nth-child(4) {
+    grid-column: span 3;
+    min-height: 112px;
+  }
+}
+
+.focoDots {
+  display: flex;
+  gap: 8px;
+}
+
+.focoDot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgba(23, 23, 22, 0.08);
+  border: 1px solid rgba(23, 23, 22, 0.32);
+}
+
+.focoDotOn {
+  background: #171716;
+  border-color: #171716;
+}
+
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .chartsRow {
+    grid-template-columns: 1fr 1fr;
+  }
+  .chartsRow > .card + .card {
+    margin-top: 0;
+  }
+}
+
+.masterDetail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .masterDetail {
+    grid-template-columns: 320px 1fr;
+  }
+  .masterDetail > .card + .card {
+    margin-top: 0;
+  }
+}
+
+.dayList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dayRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dayRow:hover {
+  border-color: var(--border-strong);
+}
+
+.dayRowActive {
+  border-color: rgba(212, 126, 174, 0.42);
+  background: var(--selection-bg);
+  box-shadow: inset 3px 0 0 var(--pink);
+}
+
+.dayWhen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+}
+
+.dayNum {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.dayDow {
+  font-size: 0.66rem;
+  color: var(--faint);
+  text-transform: lowercase;
+}
+
+.dayFoci {
+  display: flex;
+  gap: 5px;
+  margin-left: 4px;
+}
+
+.miniDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+}
+
+.miniDotOn {
+  background: var(--action-bg);
+  border-color: var(--action-bg);
+}
+
+.dayScore {
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.detailHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.detailTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.detailScore {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--action-bg);
+  border: 1px solid var(--action-bg);
+  color: var(--action-text);
+  padding: 4px 10px;
+  border-radius: 5px;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 620px) {
+  .detailGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.detailIcon {
+  font-size: 1rem;
+}
+
+.detailLabel {
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.detailValue {
+  margin-left: auto;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.notes {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.empty {
+  font-size: 0.88rem;
+  color: var(--faint);
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}

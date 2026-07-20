@@ -1,0 +1,144 @@
+.app {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 18px;
+  background: var(--bg-2);
+  transition: background-color 0.2s ease;
+  min-height: 100dvh;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0 0;
+}
+
+.greeting {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 3vw, 2.95rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+.greetingHi {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.topActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.iconBtn:hover {
+  border-color: var(--border-strong);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.gridWithRight {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1080px) {
+  .gridWithRight {
+    grid-template-columns: minmax(0, 1fr) 348px;
+  }
+}
+
+@media (min-width: 721px) {
+  .iconBtn {
+    display: none;
+  }
+}
+
+@media (min-width: 1080px) and (max-width: 1279px) {
+  .gridWithRight {
+    grid-template-columns: minmax(0, 1fr) 310px;
+  }
+}
+
+.main {
+  min-width: 0;
+}
+
+/* Coluna da direita (calendário/timeline) só no desktop 3 colunas.
+   Abaixo disso, o mesmo painel é renderizado dentro do Overview após os focos. */
+.rightCol {
+  display: none;
+}
+
+@media (min-width: 1080px) {
+  .rightCol {
+    display: block;
+  }
+}
+
+.loading {
+  text-align: center;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 60px 0;
+}
+
+.error {
+  background: rgba(251, 113, 133, 0.14);
+  border: 1px solid var(--danger);
+  color: #ffd9de;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Mobile: sidebar vira barra inferior → espaço no rodapé */
+@media (max-width: 720px) {
+  .app {
+    display: block;
+    padding: 12px 12px 96px;
+  }
+}

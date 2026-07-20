@@ -1,0 +1,41 @@
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.line {
+  fill: none;
+  stroke: var(--fuchsia);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: none;
+}
+
+.dot {
+  fill: var(--fuchsia);
+}
+
+.tick {
+  fill: var(--faint);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--faint);
+  margin-top: 4px;
+}
+
+.empty {
+  font-size: 0.85rem;
+  color: var(--faint);
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}
