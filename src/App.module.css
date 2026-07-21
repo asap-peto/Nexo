@@ -126,6 +126,15 @@
   padding: 60px 0;
 }
 
+.bootLoading {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .error {
   background: rgba(251, 113, 133, 0.14);
   border: 1px solid var(--danger);

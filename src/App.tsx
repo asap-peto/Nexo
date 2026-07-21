@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import type { Entry, WeeklyWeight, Workout, Recipe } from './types'
-import { getUserCode, clearUserCode } from './lib/userCode'
 import { hasSupabase } from './lib/supabase'
+import { getCurrentUser, onAuthChange, signOut, displayName, type AppUser } from './lib/auth'
 import {
   getEntries,
   upsertEntry,
@@ -16,7 +16,7 @@ import {
 } from './lib/storage'
 import { computeStats, computeInsights, type Stats } from './lib/stats'
 import { addDays, today, parseISO } from './lib/dates'
-import { CodeGate } from './components/CodeGate'
+import { LoginScreen } from './components/LoginScreen'
 import { Sidebar, type View } from './components/Sidebar'
 import { RightPanel } from './components/RightPanel'
 import { Overview } from './screens/Overview'
@@ -43,9 +43,6 @@ const TITLES: Record<View, string> = {
   receitas: 'Receitas',
 }
 
-// Nome exibido na saudação. Troque aqui para personalizar.
-const USER_NAME = 'Peto'
-
 function greeting(): string {
   const h = new Date().getHours()
   if (h < 12) return 'Bom dia'
@@ -69,7 +66,8 @@ function getInitialDarkMode(): boolean {
 }
 
 export default function App() {
-  const [code, setCode] = useState<string | null>(getUserCode())
+  const [user, setUser] = useState<AppUser | null>(null)
+  const [authReady, setAuthReady] = useState(false)
   const [view, setView] = useState<View>('dashboard')
   const [entries, setEntries] = useState<Entry[]>([])
   const [weights, setWeights] = useState<WeeklyWeight[]>([])
@@ -96,17 +94,36 @@ export default function App() {
     })
   }, [])
 
-  const load = useCallback(async (userCode: string) => {
+  // Descobre a sessão atual e escuta login/logout (retorno do OAuth do Google).
+  useEffect(() => {
+    let active = true
+    getCurrentUser().then((u) => {
+      if (active) {
+        setUser(u)
+        setAuthReady(true)
+      }
+    })
+    const unsub = onAuthChange((u) => {
+      if (active) setUser(u)
+    })
+    return () => {
+      active = false
+      unsub()
+    }
+  }, [])
+
+  const userId = user?.id ?? null
+
+  const load = useCallback(async (id: string) => {
     setLoading(true)
     setError(null)
     try {
       const recentSince = addDays(today(), -60)
       const [es, ws, wos, rs] = await Promise.all([
-        // Entries are lightweight and drive all-time stats such as best streak.
-        getEntries(userCode),
-        getWeeklyWeights(userCode),
-        getWorkouts(userCode, recentSince),
-        getCustomRecipes(userCode),
+        getEntries(id),
+        getWeeklyWeights(id),
+        getWorkouts(id, recentSince),
+        getCustomRecipes(id),
       ])
       setEntries(es)
       setWeights(ws)
@@ -121,77 +138,83 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (code) load(code)
-  }, [code, load])
+    if (userId) load(userId)
+  }, [userId, load])
 
   const saveEntry = useCallback(
     async (entry: Entry) => {
-      if (!code) return
-      await upsertEntry(code, entry)
-      await load(code)
+      if (!userId) return
+      await upsertEntry(userId, entry)
+      await load(userId)
     },
-    [code, load],
+    [userId, load],
   )
 
   const saveWeight = useCallback(
     async (weekStart: string, kg: number) => {
-      if (!code) return
-      await upsertWeight(code, weekStart, kg)
-      await load(code)
+      if (!userId) return
+      await upsertWeight(userId, weekStart, kg)
+      await load(userId)
     },
-    [code, load],
+    [userId, load],
   )
 
   const onAddWorkout = useCallback(
     async (w: Omit<Workout, 'id' | 'entry_date'>) => {
-      if (!code) return
-      await addWorkout(code, { ...w, entry_date: today() })
-      await load(code)
+      if (!userId) return
+      await addWorkout(userId, { ...w, entry_date: today() })
+      await load(userId)
     },
-    [code, load],
+    [userId, load],
   )
 
   const onDeleteWorkout = useCallback(
     async (id: string) => {
-      if (!code) return
-      await deleteWorkout(code, id)
-      await load(code)
+      if (!userId) return
+      await deleteWorkout(userId, id)
+      await load(userId)
     },
-    [code, load],
+    [userId, load],
   )
 
   const onSaveRecipe = useCallback(
     async (recipe: Recipe) => {
-      if (!code) return
-      await saveRecipe(code, recipe)
-      await load(code)
+      if (!userId) return
+      await saveRecipe(userId, recipe)
+      await load(userId)
     },
-    [code, load],
+    [userId, load],
   )
 
   const onDeleteRecipe = useCallback(
     async (id: string) => {
-      if (!code) return
-      await deleteRecipe(code, id)
-      await load(code)
+      if (!userId) return
+      await deleteRecipe(userId, id)
+      await load(userId)
     },
-    [code, load],
+    [userId, load],
   )
 
-  function logout() {
-    clearUserCode()
-    setCode(null)
+  const logout = useCallback(async () => {
+    await signOut()
+    setUser(null)
     setEntries([])
     setWeights([])
     setWorkouts([])
     setCustomRecipes([])
     setStats(EMPTY_STATS)
     setView('dashboard')
+  }, [])
+
+  if (!authReady) {
+    return <div className={styles.bootLoading}>Carregando…</div>
   }
 
-  if (!code) {
-    return <CodeGate onEnter={setCode} />
+  if (!user) {
+    return <LoginScreen onAuthed={setUser} />
   }
+
+  const firstName = displayName(user)
 
   const todayEntry = entries.find((e) => e.entry_date === today()) ?? null
   const todayWorkouts = workouts.filter((w) => w.entry_date === today())
@@ -225,7 +248,8 @@ export default function App() {
             <h1 className={styles.greeting}>
               {view === 'dashboard' ? (
                 <>
-                  <span className={styles.greetingHi}>{greeting()},</span> {USER_NAME}!
+                  <span className={styles.greetingHi}>{greeting()}</span>
+                  {firstName ? <>, {firstName}!</> : '!'}
                 </>
               ) : (
                 TITLES[view]

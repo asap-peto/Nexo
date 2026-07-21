@@ -51,30 +51,37 @@ Outros comandos: `npm run build` (gera `dist/`), `npm run preview` (serve o buil
    VITE_SUPABASE_ANON_KEY=sua-anon-key
    ```
 
-## Autenticação: código pessoal (e o trade-off de segurança)
+## Autenticação: código pessoal (login real, múltiplos perfis)
 
-Não há conta, e-mail ou senha. No primeiro acesso em cada dispositivo, o app pede um **código
-pessoal**, que fica salvo no `localStorage` daquele aparelho. Toda query ao Supabase filtra por
-esse código.
+Não há Google. Cada pessoa entra com um **código pessoal**; se o código ainda não existe, ele
+**cria um perfil novo** na hora. Por baixo, o código vira um usuário de verdade do Supabase Auth
+(o código é usado como e-mail interno + senha), então cada perfil tem dados **isolados por RLS**
+(`auth.uid() = user_id`) — ninguém acessa o perfil de outro, e o mesmo código em vários aparelhos
+vê os mesmos dados (sync).
 
-⚠️ **Importante — não há autenticação real (JWT/sessão).** Qualquer pessoa que descubra **o seu
-código E a URL/anon key** do projeto (a anon key fica embutida no bundle público, o que é normal
-para o client Supabase) consegue ler ou escrever nos seus dados. É um trade-off aceitável para
-dados de hábito pessoal de baixa sensibilidade, desde que:
+Configuração necessária (uma vez, no painel do Supabase):
 
-- O código seja **longo e não óbvio** — uma frase aleatória, não `peto123`.
-- Você **não guarde nada sensível** nessas tabelas (documento, saúde clínica, financeiro) — só
-  hábitos/sono/estudo/peso.
+1. **Authentication → Providers → Email:** deixe o provider **ativado** e **DESLIGUE** a opção
+   *Confirm email* (senão o cadastro não devolve sessão e o login pelo código não conclui).
+2. **Authentication → Providers** (ou *Settings*): mantenha *Allow new users to sign up* **ligado**.
 
-As policies de RLS em `schema.sql` exigem que `user_code` esteja presente e não-vazio (evitam
-varreduras totalmente abertas), mas **não** isolam criptograficamente um código do outro.
+O código precisa ter no mínimo **6 caracteres** (é a senha do perfil). Anote em lugar seguro — sem
+ele não dá pra recuperar os dados.
+
+⚠️ **Trade-off:** quem souber o seu código consegue entrar no seu perfil (o código é a única
+credencial). Diferente do modelo antigo, porém, a RLS por `auth.uid()` impede que alguém liste ou
+leia os dados de outros perfis mesmo tendo a anon key — o isolamento é real.
+
+> Em desenvolvimento sem as variáveis do Supabase, o mesmo formulário funciona em modo local
+> (perfil por código guardado só no navegador, sem sync).
 
 ## Deploy no GitHub Pages
 
 1. Suba o repositório no GitHub com o nome **`Nexo`** (o `base` do Vite está configurado como
    `/Nexo/` em [`vite.config.ts`](vite.config.ts)).
 2. Em **Settings → Pages**, defina **Source = GitHub Actions**.
-3. Em **Settings → Secrets and variables → Actions**, adicione dois secrets:
+3. Em **Settings → Secrets and variables → Actions**, adicione dois secrets (sem eles o app fica
+   em modo local e **não sincroniza**):
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
 4. Faça push na branch `main`. O workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
@@ -86,7 +93,7 @@ varreduras totalmente abertas), mas **não** isolam criptograficamente um códig
 - **Android (Chrome):** menu → *Instalar app* / *Adicionar à tela inicial*.
 - **Computador:** funciona direto no navegador; o Chrome também oferece "Instalar".
 
-Use o **mesmo código pessoal** em todos os dispositivos para ver o mesmo histórico.
+Entre com a **mesma conta Google** em todos os dispositivos para ver o mesmo histórico.
 
 ## Receitas
 
